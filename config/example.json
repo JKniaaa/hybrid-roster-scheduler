@@ -1,0 +1,9 @@
+{
+  "start_date": "2025-07-01",
+  "end_date":   "2025-07-07",
+  "nurses": {
+    "seniors": ["S00", "S01", "S02", "S03"],
+    "juniors": ["J00", "J01"]
+  },
+  "rules_text": "Night shift should not be followed by AM shift."
+}

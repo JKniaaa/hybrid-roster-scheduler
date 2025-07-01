@@ -1,0 +1,10 @@
+flask
+openai
+ortools
+anthropic
+google-cloud-aiplatform
+pyyaml
+streamlit
+requests
+python-dotenv
+xlsxwriter
