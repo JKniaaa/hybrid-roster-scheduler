@@ -26,6 +26,8 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_MODEL   = os.getenv("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct")
 DEEPSEEK_API_KEY   = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_MODEL     = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 # Lazy‐import SDKs
 try:
@@ -69,6 +71,17 @@ def _call_anthropic(prompt: str) -> str:
     if usage:
         logging.info(f"[Anthropic tokens] input: {usage.input_tokens}, output: {usage.output_tokens}")
     return response.content[0].text
+
+def _call_ollama(prompt: str) -> str:
+    url = f"{OLLAMA_BASE_URL}/api/chat"
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False
+    }
+    resp = requests.post(url, json=payload)
+    resp.raise_for_status()
+    return resp.json()["message"]["content"]
 
 
 def _call_openrouter(prompt: str) -> str:
@@ -122,6 +135,9 @@ def call_llm(prompt: str) -> str:
     if PROVIDER == "deepseek":
         return _call_deepseek(prompt)
 
+    if PROVIDER == "ollama":
+        return _call_ollama(prompt)
+
     raise RuntimeError(f"Unsupported PROVIDER: {PROVIDER}")
 
 
@@ -154,6 +170,12 @@ No explanations or markdown.
 
     raw = call_llm(prompt)
     logging.info(f"[LLM raw output]\n{raw}")
+
+    if "for " in raw or "range(" in raw or "lambda" in raw:
+        raise RuntimeError(
+            "LLM returned Python code instead of JSON. "
+            "Please adjust your prompt or try a different model/provider."
+        )
 
     try:
         return json.loads(raw)

@@ -95,5 +95,5 @@ for n in nurses:
 
 NOW GENERATE the code for:
 \"\"\"{custom_rules}\"\"\"
-Only output valid Python code. No comments, no prose, no markdown.
+Return exactly valid JSON. Do NOT use Python code, variables, or expressions. Only output data, not code. No comments, no prose, no markdown.
 """.strip()
